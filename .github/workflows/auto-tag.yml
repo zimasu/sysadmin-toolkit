@@ -1,0 +1,24 @@
+# Workflow Name
+name: Auto Tag on Release Commit
+
+# Trigger
+on:
+  push:
+    branches:
+      - main
+
+# Jobs (runs on GitHub's fresh VM)
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Create tag if release commit
+        run: |
+          MSG=$(git log -1 --pretty=%B)
+          if echo "$MSG" | grep -q "^release: v"; then
+            TAG=$(echo "$MSG" | grep -o "v[0-9]*\.[0-9]*\.[0-9]*")
+            git tag $TAG
+            git push origin $TAG
+          fi
